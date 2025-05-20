@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Horizon Academy Prelims</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     * {
       margin: 0;
@@ -32,10 +32,10 @@
     h1 {
       font-size: 2.5rem;
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
-    p {
+    p.description {
       text-align: center;
       max-width: 600px;
       font-size: 1.1rem;
@@ -48,9 +48,12 @@
       gap: 1rem;
       margin-bottom: 1.5rem;
       align-items: center;
+      width: 100%;
+      max-width: 400px;
     }
 
     select, button {
+      width: 100%;
       padding: 0.6rem 1rem;
       border: none;
       border-radius: 6px;
@@ -60,12 +63,19 @@
 
     button {
       background-color: #f7c948;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background-color: #f0b429;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      background-color: #d8d8d8;
+      color: #888;
     }
 
     #message {
@@ -73,6 +83,8 @@
       font-size: 1rem;
       color: red;
       text-align: center;
+      min-height: 1.2em;
+      font-weight: 600;
     }
 
     footer {
@@ -80,6 +92,8 @@
       padding-top: 2rem;
       font-size: 0.9rem;
       color: #ccc;
+      text-align: center;
+      width: 100%;
     }
 
     @media (max-width: 600px) {
@@ -87,17 +101,22 @@
         font-size: 2rem;
       }
 
-      p {
+      p.description {
         font-size: 1rem;
+        padding: 0 1rem;
+      }
+
+      .dropdowns {
+        max-width: 100%;
       }
     }
   </style>
 </head>
 <body>
 
-  <img src="logo.png" alt="Horizon Academy Logo" class="logo">
-  <h1>Download Preliminary Papers of Horizon Academy CBSE – All in One Place</h1>
-  <p>Select year, subject, and paper to download Horizon Academy's official CBSE preliminary practice papers.</p>
+  <img src="logo.png" alt="Horizon Academy Logo" class="logo" />
+  <h1>Download Preliminary Papers</h1>
+  <p class="description">Download Preliminary Papers of Horizon Academy CBSE – All in One Place</p>
 
   <div class="dropdowns">
     <select id="year">
@@ -134,9 +153,9 @@
         science: [1, 2, 3],
         socialscience: [1, 2, 3],
         marathi: [1, 2, 3],
-        hindi: [1],
+        hindi: [1], // fixed: 1 paper available
         maths: [1, 2, 3],
-        it: null
+        it: null // no exam conducted
       },
       2025: {
         english: [1, 2, 3],
@@ -169,12 +188,18 @@
       it: "itprelim"
     };
 
+    function resetDropdown(dropdown) {
+      dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
+      dropdown.disabled = true;
+    }
+
     yearSelect.addEventListener("change", () => {
       const year = yearSelect.value;
       resetDropdown(subjectSelect);
       resetDropdown(paperSelect);
       message.textContent = "";
       downloadBtn.disabled = true;
+      downloadBtn.style.display = "inline-block";
 
       if (year) {
         subjectSelect.disabled = false;
@@ -195,14 +220,17 @@
       resetDropdown(paperSelect);
       message.textContent = "";
       downloadBtn.disabled = true;
+      downloadBtn.style.display = "inline-block";
 
       if (subject && year) {
         const papers = prelimData[year][subject];
 
         if (papers === null) {
           paperSelect.disabled = true;
+          downloadBtn.style.display = "none";
           message.textContent = `⚠️ No Exam Conducted for ${subjectNames[subject]} in ${year}`;
         } else if (papers.length === 1 && subject === "hindi" && year === "2024") {
+          // only 1 paper - hide paper dropdown, enable download
           paperSelect.disabled = true;
           downloadBtn.disabled = false;
         } else {
@@ -213,7 +241,10 @@
             option.textContent = `Paper ${paper}`;
             paperSelect.appendChild(option);
           });
+          downloadBtn.disabled = true; // enable when paper selected
         }
+      } else {
+        downloadBtn.disabled = true;
       }
     });
 
@@ -229,7 +260,9 @@
       if (!subject) return;
 
       let filename = "";
+
       if (subject === "hindi" && year === "2024") {
+        // only 1 paper, fixed name
         filename = "prelim/hindiprelim-2024.pdf";
       } else {
         filename = `prelim/${filePrefixes[subject]}${paper}-${year}.pdf`;
@@ -242,12 +275,6 @@
       link.click();
       document.body.removeChild(link);
     });
-
-    function resetDropdown(dropdown) {
-      dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
-      dropdown.disabled = true;
-    }
   </script>
-
 </body>
 </html>
