@@ -140,141 +140,144 @@
 
   <footer>Website by Arnav Thete | Sponsored by Pranav Ghaywat</footer>
 
-  <script>
-    const yearSelect = document.getElementById("year");
-    const subjectSelect = document.getElementById("subject");
-    const paperSelect = document.getElementById("paper");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const message = document.getElementById("message");
+<script>
+  const yearSelect = document.getElementById("year");
+  const subjectSelect = document.getElementById("subject");
+  const paperSelect = document.getElementById("paper");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const message = document.getElementById("message");
 
-    const prelimData = {
-      2024: {
-        english: [1, 2, 3],
-        science: [1, 2, 3],
-        socialscience: [1, 2, 3],
-        marathi: [1, 2, 3],
-        hindi: [1], // fixed: 1 paper available
-        maths: [1, 2, 3],
-        it: null // no exam conducted
-      },
-      2025: {
-        english: [1, 2, 3],
-        science: [1, 2, 3],
-        socialscience: [1, 2, 3],
-        marathi: [1, 2, 3],
-        hindi: [1, 2, 3],
-        maths: [1, 2, 3],
-        it: [1, 2, 3]
-      }
-    };
-
-    const subjectNames = {
-      english: "English Language and Literature",
-      science: "Science",
-      socialscience: "Social Science",
-      marathi: "Marathi",
-      hindi: "Hindi",
-      maths: "Mathematics Standard",
-      it: "Information Technology"
-    };
-
-    const filePrefixes = {
-      english: "englishprelim",
-      science: "scienceprelim",
-      socialscience: "ssprelim",
-      marathi: "marathiprelim",
-      hindi: "hindiprelim",
-      maths: "mathsprelim",
-      it: "itprelim"
-    };
-
-    function resetDropdown(dropdown) {
-      dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
-      dropdown.disabled = true;
+  const prelimData = {
+    2024: {
+      english: [1, 2, 3],
+      science: [1, 2, 3],
+      socialscience: [1, 2, 3],
+      marathi: [1, 2, 3],
+      hindi: [1], // One paper
+      maths: [1, 2, 3],
+      it: null
+    },
+    2025: {
+      english: [1, 2, 3],
+      science: [1, 2, 3],
+      socialscience: [1, 2, 3],
+      marathi: [1, 2, 3],
+      hindi: [1, 2, 3],
+      maths: [1, 2, 3],
+      it: [1, 2, 3]
     }
+  };
 
-    yearSelect.addEventListener("change", () => {
-      const year = yearSelect.value;
-      resetDropdown(subjectSelect);
-      resetDropdown(paperSelect);
-      message.textContent = "";
-      downloadBtn.disabled = true;
-      downloadBtn.style.display = "inline-block";
+  const subjectNames = {
+    english: "English Language and Literature",
+    science: "Science",
+    socialscience: "Social Science",
+    marathi: "Marathi",
+    hindi: "Hindi",
+    maths: "Mathematics Standard",
+    it: "Information Technology"
+  };
 
-      if (year) {
-        subjectSelect.disabled = false;
-        Object.keys(subjectNames).forEach(subjectKey => {
+  const filePrefixes = {
+    english: "englishprelim",
+    science: "scienceprelim",
+    socialscience: "ssprelim",
+    marathi: "marathiprelim",
+    hindi: "hindiprelim",
+    maths: "mathsprelim",
+    it: "itprelim"
+  };
+
+  function resetDropdown(dropdown) {
+    dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
+    dropdown.disabled = true;
+  }
+
+  yearSelect.addEventListener("change", () => {
+    const year = yearSelect.value;
+    resetDropdown(subjectSelect);
+    resetDropdown(paperSelect);
+    message.textContent = "";
+    downloadBtn.disabled = true;
+    downloadBtn.style.display = "inline-block";
+
+    if (year) {
+      subjectSelect.disabled = false;
+      Object.keys(subjectNames).forEach(subjectKey => {
+        const option = document.createElement("option");
+        option.value = subjectKey;
+        option.textContent = subjectNames[subjectKey];
+        subjectSelect.appendChild(option);
+      });
+    }
+  });
+
+  subjectSelect.addEventListener("change", () => {
+    const year = yearSelect.value;
+    const subject = subjectSelect.value;
+    resetDropdown(paperSelect);
+    message.textContent = "";
+    downloadBtn.disabled = true;
+    downloadBtn.style.display = "inline-block";
+
+    if (subject && year) {
+      const papers = prelimData[year][subject];
+
+      if (papers === null) {
+        paperSelect.disabled = true;
+        downloadBtn.style.display = "none";
+        message.textContent = `⚠️ No Exam Conducted for ${subjectNames[subject]} in ${year}`;
+      } else if (papers.length === 1) {
+        paperSelect.disabled = true;
+        downloadBtn.disabled = false;
+        paperSelect.innerHTML = `<option value="${papers[0]}" selected>Paper ${papers[0]}</option>`;
+        paperSelect.value = papers[0]; // Manually set for use in download
+      } else {
+        paperSelect.disabled = false;
+        papers.forEach(paper => {
           const option = document.createElement("option");
-          option.value = subjectKey;
-          option.textContent = subjectNames[subjectKey];
-          subjectSelect.appendChild(option);
+          option.value = paper;
+          option.textContent = `Paper ${paper}`;
+          paperSelect.appendChild(option);
         });
-      } else {
-        subjectSelect.disabled = true;
-      }
-    });
-
-    subjectSelect.addEventListener("change", () => {
-      const year = yearSelect.value;
-      const subject = subjectSelect.value;
-      resetDropdown(paperSelect);
-      message.textContent = "";
-      downloadBtn.disabled = true;
-      downloadBtn.style.display = "inline-block";
-
-      if (subject && year) {
-        const papers = prelimData[year][subject];
-
-        if (papers === null) {
-          paperSelect.disabled = true;
-          downloadBtn.style.display = "none";
-          message.textContent = `⚠️ No Exam Conducted for ${subjectNames[subject]} in ${year}`;
-        } else if (papers.length === 1 && subject === "hindi" && year === "2024") {
-          // only 1 paper - hide paper dropdown, enable download
-          paperSelect.disabled = true;
-          downloadBtn.disabled = false;
-        } else {
-          paperSelect.disabled = false;
-          papers.forEach(paper => {
-            const option = document.createElement("option");
-            option.value = paper;
-            option.textContent = `Paper ${paper}`;
-            paperSelect.appendChild(option);
-          });
-          downloadBtn.disabled = true; // enable when paper selected
-        }
-      } else {
         downloadBtn.disabled = true;
       }
-    });
+    }
+  });
 
-    paperSelect.addEventListener("change", () => {
-      downloadBtn.disabled = !paperSelect.value;
-    });
+  paperSelect.addEventListener("change", () => {
+    downloadBtn.disabled = !paperSelect.value;
+  });
 
-    downloadBtn.addEventListener("click", () => {
-      const year = yearSelect.value;
-      const subject = subjectSelect.value;
-      const paper = paperSelect.value;
+  downloadBtn.addEventListener("click", () => {
+    const year = yearSelect.value;
+    const subject = subjectSelect.value;
 
-      if (!subject) return;
+    if (!subject) return;
 
-      let filename = "";
+    let paper = paperSelect.value;
+    const papers = prelimData[year][subject];
 
-      if (subject === "hindi" && year === "2024") {
-        // only 1 paper, fixed name
-        filename = "prelim/hindiprelim-2024.pdf";
-      } else {
-        filename = `prelim/${filePrefixes[subject]}${paper}-${year}.pdf`;
-      }
+    // Handle single-paper subjects (auto-selected)
+    if (papers && papers.length === 1) {
+      paper = papers[0];
+    }
 
-      const link = document.createElement("a");
-      link.href = filename;
-      link.download = filename.split("/").pop();
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-  </script>
+    let filename = "";
+
+    if (subject === "hindi" && year === "2024") {
+      filename = "prelim/hindiprelim-2024.pdf";
+    } else {
+      filename = `prelim/${filePrefixes[subject]}${paper}-${year}.pdf`;
+    }
+
+    const link = document.createElement("a");
+    link.href = filename;
+    link.download = filename.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
 </body>
 </html>
