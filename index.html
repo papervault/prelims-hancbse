@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Horizon Academy Prelims</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .logo {
+      width: 180px;
+      height: auto;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      text-align: center;
+      max-width: 600px;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .dropdowns {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+
+    select, button {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: #1e3c72;
+    }
+
+    button {
+      background-color: #f7c948;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #f0b429;
+    }
+
+    #message {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: red;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 2rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <img src="logo.png" alt="Horizon Academy Logo" class="logo">
+  <h1>Download Preliminary Papers of Horizon Academy CBSE – All in One Place</h1>
+  <p>Select year, subject, and paper to download Horizon Academy's official CBSE preliminary practice papers.</p>
+
+  <div class="dropdowns">
+    <select id="year">
+      <option value="">Select Year</option>
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+    </select>
+
+    <select id="subject" disabled>
+      <option value="">Select Subject</option>
+    </select>
+
+    <select id="paper" disabled>
+      <option value="">Select Paper</option>
+    </select>
+
+    <button id="downloadBtn" disabled>Download Paper</button>
+  </div>
+
+  <div id="message"></div>
+
+  <footer>Website by Arnav Thete | Sponsored by Pranav Ghaywat</footer>
+
+  <script>
+    const yearSelect = document.getElementById("year");
+    const subjectSelect = document.getElementById("subject");
+    const paperSelect = document.getElementById("paper");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const message = document.getElementById("message");
+
+    const prelimData = {
+      2024: {
+        english: [1, 2, 3],
+        science: [1, 2, 3],
+        socialscience: [1, 2, 3],
+        marathi: [1, 2, 3],
+        hindi: [1],
+        maths: [1, 2, 3],
+        it: null
+      },
+      2025: {
+        english: [1, 2, 3],
+        science: [1, 2, 3],
+        socialscience: [1, 2, 3],
+        marathi: [1, 2, 3],
+        hindi: [1, 2, 3],
+        maths: [1, 2, 3],
+        it: [1, 2, 3]
+      }
+    };
+
+    const subjectNames = {
+      english: "English Language and Literature",
+      science: "Science",
+      socialscience: "Social Science",
+      marathi: "Marathi",
+      hindi: "Hindi",
+      maths: "Mathematics Standard",
+      it: "Information Technology"
+    };
+
+    const filePrefixes = {
+      english: "englishprelim",
+      science: "scienceprelim",
+      socialscience: "ssprelim",
+      marathi: "marathiprelim",
+      hindi: "hindiprelim",
+      maths: "mathsprelim",
+      it: "itprelim"
+    };
+
+    yearSelect.addEventListener("change", () => {
+      const year = yearSelect.value;
+      resetDropdown(subjectSelect);
+      resetDropdown(paperSelect);
+      message.textContent = "";
+      downloadBtn.disabled = true;
+
+      if (year) {
+        subjectSelect.disabled = false;
+        Object.keys(subjectNames).forEach(subjectKey => {
+          const option = document.createElement("option");
+          option.value = subjectKey;
+          option.textContent = subjectNames[subjectKey];
+          subjectSelect.appendChild(option);
+        });
+      } else {
+        subjectSelect.disabled = true;
+      }
+    });
+
+    subjectSelect.addEventListener("change", () => {
+      const year = yearSelect.value;
+      const subject = subjectSelect.value;
+      resetDropdown(paperSelect);
+      message.textContent = "";
+      downloadBtn.disabled = true;
+
+      if (subject && year) {
+        const papers = prelimData[year][subject];
+
+        if (papers === null) {
+          paperSelect.disabled = true;
+          message.textContent = `⚠️ No Exam Conducted for ${subjectNames[subject]} in ${year}`;
+        } else if (papers.length === 1 && subject === "hindi" && year === "2024") {
+          paperSelect.disabled = true;
+          downloadBtn.disabled = false;
+        } else {
+          paperSelect.disabled = false;
+          papers.forEach(paper => {
+            const option = document.createElement("option");
+            option.value = paper;
+            option.textContent = `Paper ${paper}`;
+            paperSelect.appendChild(option);
+          });
+        }
+      }
+    });
+
+    paperSelect.addEventListener("change", () => {
+      downloadBtn.disabled = !paperSelect.value;
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const year = yearSelect.value;
+      const subject = subjectSelect.value;
+      const paper = paperSelect.value;
+
+      if (!subject) return;
+
+      let filename = "";
+      if (subject === "hindi" && year === "2024") {
+        filename = "prelim/hindiprelim-2024.pdf";
+      } else {
+        filename = `prelim/${filePrefixes[subject]}${paper}-${year}.pdf`;
+      }
+
+      const link = document.createElement("a");
+      link.href = filename;
+      link.download = filename.split("/").pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    function resetDropdown(dropdown) {
+      dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
+      dropdown.disabled = true;
+    }
+  </script>
+
+</body>
+</html>
